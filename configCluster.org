@@ -1,0 +1,55 @@
+* Criar o cluster
+  #+BEGIN_SRC
+  gcloud beta dataproc clusters create custer1 \
+   --enable-component-gateway \
+   --region southamerica-east1 \
+   --subnet default \
+   --zone southamerica-east1-a \ 
+   --master-machine-type n1-standard-1 \
+   --master-boot-disk-size 500 \
+   --num-workers 2 \
+   --worker-machine-type n1-standard-2 \
+   --worker-boot-disk-size 500 \
+   --image-version 1.4-debian9 \
+   --optional-components ANACONDA,JUPYTER,ZEPPELIN \
+   --scopes 'https://www.googleapis.com/auth/cloud-platform' \
+   --project mobillseducacaofinanceira
+   --properties dataproc:dataproc.conscrypt.provider.enable=false
+    #+END_SRC
+* Enviar chaves SSH
+  #+BEGIN_SRC
+  gcloud compute ssh \
+    --zone=southamerica-east1-a \
+    --project=mobillseducacaofinanceira \
+    cluster1-m
+  #+END_SRC
+* Reconfigurar a passphrase 
+  #+BEGIN_SRC
+    rm ~/.ssh/google_compute_engine*
+  #+END_SRC
+* Criar user p/ usuario Rstudio 
+  Criar usuario no master: 
+  *USER: rstudio*
+  *PASS: analise1*
+* Encaminhamento de porta via SOCKS
+  #+BEGIN_SRC  
+  gcloud compute ssh \
+      --zone=southamerica-east1-a \
+      --project=mobillseducacaofinanceira \
+      cluster1-m -- \
+      -L 8787:localhost:8787
+  #+END_SRC
+* Instalando e configurando o FreeTDS
+  # Download FreeTDS
+  #+BEGIN_SRC
+   sudo ./configure --prefix=usr/ocal
+   sudo make
+   sudo make install
+  #+END_SRC
+  #+BEGIN_SRC
+   sudo apt-get install freetds-dev
+   sudo apt-get intall tdsodbc
+   cd /usr/lib/x86_64-linux-gnu/odbc/libtdsodbc.so
+   cp libtdsodbc.so /usr/lib/odbc
+   cp libtdsS.so /usr/lib/odbc
+  #+END_SRC
